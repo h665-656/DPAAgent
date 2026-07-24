@@ -1,145 +1,94 @@
-<div align="center">
+# DPA Agent
 
-<img src="resources/icon.svg" alt="pi Desktop logo" width="80" height="80" />
+基于 [pi Desktop](https://github.com/justhil/pi-app) 的 **DPA 外部桌面实验助手**：用 MCP 连接本机 DPA，通过 `dpa_*` 工具做可重复实验、查状态、配设备/通道、创建与调整分析。
 
-# pi Desktop
+```text
+pi Desktop (本仓库)
+  → pi-mcp-adapter
+  → node <DPA>/tools/dpa-mcp/server.js
+  → DPA ExternalAgentBridge
+  → ToolRegistry
+```
 
-The desktop app for the [pi](https://github.com/jvm/pi-mono) coding agent — same agent you run in the terminal, now with a timeline, side panels, and a real window.
+[详细说明](./docs/DPA-AGENT.md) · [Agent 人设](./AGENTS.md) · [上游 README（英文）](./README.upstream.md) · [上游 README（中文）](./README.zh-CN.md)
 
-[![Version](https://img.shields.io/badge/version-0.4.10-blue?style=flat-square)](https://github.com/justhil/pi-app/releases/latest)
-[![Download](https://img.shields.io/github/v/release/justhil/pi-app?label=download&style=flat-square&logo=github)](https://github.com/justhil/pi-app/releases/latest)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](package.json)
-[![GitHub stars](https://img.shields.io/github/stars/justhil/pi-app?style=social)](https://github.com/justhil/pi-app/stargazers)
+## 快速开始
 
-[简体中文](./README.zh-CN.md) · [Getting started](./doc/guide/getting-started.md) · [Adapters](./doc/guide/adapters.en.md)
+```powershell
+# 克隆
+git clone https://github.com/h665-656/DPAAgent.git
+cd DPAAgent
 
-</div>
+# 一键配置（安装 pi CLI、pi-mcp-adapter，并写入 DPA 工作区 MCP/人设）
+.\scripts\setup-dpa-agent.ps1
 
-> [!NOTE]
-> pi Desktop is **not** a separate AI — it's a desktop shell around the pi SDK you already use. Your conversations, model logins, and extension settings live in the same `~/.pi/agent` files. Open a project and keep chatting from where you left off in the terminal.
-
-![pi Desktop main window](https://img.justhil.uk/2026/06/25/image-20260625233744183)
-
-## Why
-
-If you use pi in the terminal, you've probably wished for: a real diff view instead of scrolling raw output, the ability to queue a follow-up while the agent is still running, and a session tree you can click through instead of typing `/tree`. pi Desktop gives you all of that, plus native windows for extension pop-ups — **without forking pi or touching your installed extensions**.
-
-## Features
-
-- **Streaming timeline** — markdown, code blocks, KaTeX math, and foldable tool steps (read, edit, bash) with line-level diffs
-- **Session tree** — branch and rewind like `pi /tree`, but clickable; with git, optionally restore files on jump
-- **Composer** — inline file attachments, image paste, model & thinking-level pills, slash command menu; **Files** panel tree supports **drag files into composer** or right-click attach
-- **Workspace file preview** — multi-tab (`Ctrl`/`⌘`+click or right-click **Open in new tab**), line-gutter source view, **expand preview** into the chat column for wide reading
-- **Queue messages** — keep typing while the agent runs; messages execute when the current turn ends
-- **Full pi package ecosystem** — every extension you installed for terminal pi works here: dialogs, tool cards, side panels, and `/commands` are translated to native UI by per-extension **adapters**, with **no changes to the npm packages** (see [Extensions](#extensions))
-- **Bilingual UI** — 中文 / English toggle in Settings
-- **Voice input** — optional mic → local transcription via [codex-asr](https://github.com/Wangnov/codex-asr) (bundled binary, ChatGPT/Codex token auth)
-- **Shared everything** — sessions, auth, `settings.json`, extensions: all in `~/.pi/agent`, shared with CLI pi
-
-## Get the app
-
-**Windows** — download the installer or portable build from [Releases](https://github.com/justhil/pi-app/releases/latest).
-
-> [!TIP]
-> You need pi set up once on the machine (model login, the way you already use for terminal pi). After that, just open a project folder in pi Desktop and you're in.
-
-**Build from source** (developers):
-
-```bash
-git clone https://github.com/justhil/pi-app.git
-cd pi-app
+# 启动桌面壳
 npm install
 npm run dev
 ```
 
-## First steps
+打开工作区时选择你的 **DPA 工程目录**（脚本默认 `F:\Work\DPA-2026`，可按本机路径修改）。
 
-1. **Open a folder** — your repo becomes the agent's working directory (or use a sandbox under "chat partitions" to experiment safely).
-2. **Pick a session** — old chats from terminal pi show up here; or start fresh with `+`.
-3. **Send a message** — `Enter` to send, `Shift+Enter` for a new line.
-4. **Check the right panel** — review, run, context, session tree, or **Files** (tabbed preview + explorer; expand preview across the chat column).
-5. **Jump back** — hover a message and undo, or double-tap `Esc` with an empty input to open the session tree.
+### 本机路径
 
-<img src="https://img.justhil.uk/2026/06/25/image-20260625234039591" alt="Conversation timeline" style="zoom:67%;" />
+默认 MCP 配置见 [`.mcp.json`](./.mcp.json)。若 DPA 不在默认路径，请改：
 
-## Shortcuts
-
-| Action | Keys |
+| 配置项 | 含义 |
 |--------|------|
-| Send | `Enter` |
-| New line | `Shift+Enter` |
-| Browse sent messages | `↑` / `↓` (empty input) |
-| Pull back queued message | `Alt+↑` |
-| Stop generation | `Esc` |
-| Session tree | `Esc` `Esc` (empty input) |
-| Commands | `/` |
-| Attach file | Drag, `+`, or `Ctrl+V`; **Files** panel — drag files onto composer (files only) |
-| Multi-tab preview | **Files** → `Ctrl`/`⌘`+click a file, or right-click **Open in new tab** |
-| Wide preview | **Files** toolbar **Expand preview** (fills chat column; click again to collapse) |
+| `mcpServers.dpa.args` | `dpa-mcp/server.js` 绝对路径 |
+| `env.DPA_LAUNCHER_PATH` | `Launcher.exe` 绝对路径 |
 
-## Extensions
+也可在运行 setup 时传入：
 
-pi has a growing ecosystem of npm packages — subagents, image generation, search, hash-anchored edits, MCP servers, and more. pi Desktop makes all of them work on the desktop **without forking pi or patching the packages**.
+```powershell
+.\scripts\setup-dpa-agent.ps1 `
+  -DpaWorkspace "D:\path\to\DPA-2026" `
+  -DpaMcpServer "D:\path\to\DPA-2026\tools\dpa-mcp\server.js" `
+  -DpaLauncher "D:\path\to\DPA-2026\x64\Debug\Launcher.exe"
+```
 
-### How it works
+## 验证
 
-Each extension ships a terminal TUI (select, confirm, surveys, tool cards, `/commands`). pi Desktop ships a **compatibility layer** plus per-extension **adapters** — small JSON descriptions that map that TUI onto native windows, timeline cards, and settings forms. You install and enable extensions exactly as you do for terminal pi; pi Desktop renders them.
+新会话中发送：
 
-### Install & enable
+```text
+先 dpa_ensure_running，再 dpa_get_app_context，用中文总结当前页面、项目与采集状态。
+```
 
-1. Install in terminal pi: `pi install npm:<name>` or `pi install git:github.com/...`
-2. Enable in `~/.pi/agent/settings.json` → `packages`
-3. Open **Settings → Extensions** in pi Desktop to confirm tools are loaded for the current session
-4. If something's missing, **start a fresh session** after enabling the package
+## 本仓库相对上游新增
 
-Extension pop-ups (questions, image approval, confirm dialogs) appear as native windows. Per-extension desktop options live under **Settings → Desktop adapters**. Advanced users can override builtin adapters with JSON in `~/.pi/desktop/adapters/`.
+| 路径 | 作用 |
+|------|------|
+| [`.mcp.json`](./.mcp.json) | 连接本机 DPA MCP |
+| [`AGENTS.md`](./AGENTS.md) | DPA 实验助手人设 |
+| [`docs/DPA-AGENT.md`](./docs/DPA-AGENT.md) | 架构、安装、排错 |
+| [`scripts/setup-dpa-agent.ps1`](./scripts/setup-dpa-agent.ps1) | 一键安装与工作区配置 |
+| 本 `README.md` | 仓库首页 |
 
+桌面壳源码、扩展适配器与上游文档仍来自 [justhil/pi-app](https://github.com/justhil/pi-app)。
 
-![Composer with model pills](https://img.justhil.uk/2026/06/25/image-20260625233933437)
+## 要求
 
-Full list of 34 built-in desktop adapters: [doc/guide/adapters.en.md](./doc/guide/adapters.en.md) · Author your own: [adapter-authoring-guide.md](./doc/adapter-authoring-guide.md)
+| 项 | 说明 |
+|----|------|
+| Node.js | ≥ 22.19 |
+| DPA | 可启动，并加载 AIAssistant bridge |
+| 模型 | 本机 pi 已完成模型登录（`~/.pi/agent`） |
+| MCP | 本机存在 `tools/dpa-mcp/server.js` |
 
-## Voice input
+## 故障排查（摘要）
 
-The composer mic records audio and transcribes it locally using [codex-asr](https://github.com/Wangnov/codex-asr). It's optional — typing always works without it.
+| 现象 | 处理 |
+|------|------|
+| 读不到 bridge | 先启动 DPA；检查 `%LOCALAPPDATA%\DPA\AIAssistant\external-agent-bridge.json` |
+| 工具列表空 | 安装 `pi-mcp-adapter`；确认工作区根有 `.mcp.json`；**新建会话** |
+| 写操作一直 pending | 回 DPA 界面点确认；再查 `dpa_get_call_status` |
+| Launcher 找不到 | 改 `.mcp.json` 的 `DPA_LAUNCHER_PATH` |
 
-### Setup
+完整排错见 [docs/DPA-AGENT.md](./docs/DPA-AGENT.md)。
 
-Open **Settings → Voice**:
+## 上游
 
-- **Provider** — defaults to the **bundled `codex-asr serve`** binary (shipped in `resources/codex-asr/`); falls back to `codex-asr` on your `PATH`, or an external serve URL.
-- **Auth** — paste a ChatGPT/Codex `access_token`, or click **import from `~/.codex/auth.json`** (written by the [Codex CLI](https://github.com/openai/codex) or ChatGPT desktop after sign-in). Tokens are JWTs and expire — refresh by signing in again.
-- **Connectivity test** — a one-click check reports whether the serve process started and the token is valid.
-
-> [!TIP]
-> Easiest path: install the Codex CLI, run `codex login`, then in pi Desktop use **import from auth.json**. No manual token pasting needed.
-
-Bundled binaries come from [codex-asr releases](https://github.com/Wangnov/codex-asr/releases). If absent, the app falls back to any `codex-asr` found on your system `PATH`.
-
-## FAQ
-
-| Problem | Try this |
-|---------|----------|
-| Blank or frozen window after dev changes | Delete `node_modules/.vite`, run `npm run dev` again |
-| Extension listed in settings but not in chat | Enable it in pi `packages`, then **restart the session** |
-| Switching sessions feels slow at first | Only recent messages load immediately; the rest loads when you send or use the tree |
-| Voice doesn't work | Open Settings → Voice; check the token or run `codex login` to refresh — typing still works |
-| Closed an extension popup | Use **Continue** on the timeline |
-
-## Community
-
-Questions and feedback: **[LinuxDo](https://linux.do/)**
-
-If pi Desktop saves you from staring at a terminal all day, a **[star on GitHub](https://github.com/justhil/pi-app/stargazers)** helps others find it.
-
----
-
-<details>
-<summary>For developers & extension authors</summary>
-
-- User docs: [`doc/`](./doc/README.md) — getting started, adapter list, screenshots
-- Adapter authoring (for AI): [adapter-authoring-guide.md](./doc/adapter-authoring-guide.md)
-- Tech: Electron 35 · React 18 · TypeScript · Tailwind · shadcn · Zustand · i18next · `@earendil-works/pi-coding-agent`
-- Release: tag `v*` triggers `.github/workflows/release.yml` → Windows, macOS, Linux builds
-
-</details>
+- 桌面壳：https://github.com/justhil/pi-app  
+- Agent 内核：https://github.com/earendil-works/pi  
+- MCP 扩展：https://www.npmjs.com/package/pi-mcp-adapter  

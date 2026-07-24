@@ -1,3 +1,5 @@
+> **本仓库主页是 [DPA Agent README](./README.md)。** 下文为上游 **pi Desktop** 中文说明（未改品牌）。
+
 <div align="center">
 <img src="resources/icon.svg" alt="pi Desktop logo" width="80" height="80" />
 
@@ -10,7 +12,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](package.json)
 [![GitHub stars](https://img.shields.io/github/stars/justhil/pi-app?style=social)](https://github.com/justhil/pi-app/stargazers)
 
-[English](./README.md) · [操作指南](./doc/guide/getting-started.zh-CN.md) · [适配器列表](./doc/guide/adapters.zh-CN.md)
+[DPA Agent 主页](./README.md) · [English (upstream)](./README.upstream.md) · [操作指南](./doc/guide/getting-started.zh-CN.md) · [适配器列表](./doc/guide/adapters.zh-CN.md)
 
 </div>
 
