@@ -1,0 +1,79 @@
+# Dependencies
+node_modules/
+# 参考
+参考/
+#test (root scratch only; renderer vitest setup lives under src/renderer/src/test/)
+test/
+!src/renderer/src/test/
+!src/renderer/src/test/**
+# Build / pack output (regenerate: npm run build, npm run icon:export)
+out/
+dist/
+build/icon.png
+
+# Local-only docs (dev notes, audits, archives) — publishable docs stay in doc/
+docs/
+
+# Root-level audit dumps (canonical copy under docs/audit/)
+audit-report-*.md
+audit-report-*.html
+
+# Local package archives
+pi-goal-*.tgz
+
+# Logs & debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+nul
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editor local (not shipped)
+.cursor/
+.idea/
+*.swp
+*.swo
+*~
+
+# Generated / scratch / test artifacts
+.image-gen/
+screenshot*.png
+screenshot*.jpg
+screenshot*.jpeg
+*-result.txt
+*.tmp
+*.temp
+.cache/
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+tmp/
+temp/
+
+# Electron / Vite
+*.tsbuildinfo
+.vite/
+
+# Native addons rebuild noise (keep package-lock)
+*.node.map
+
+# Local-only git history rewrite helpers (do not publish)
+scripts/filter_repo_message*.py
+scripts/replace-text-history.txt
+scripts/rewrite-commit-messages.txt
+scripts/fix-arrow-syntax.py*.tgz
+scripts/git-rewrite-public-main.ps1
+scripts/git-rewrite-public-main.sh
